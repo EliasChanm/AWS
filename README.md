@@ -1,2 +1,3 @@
 # AWS
-coding related to some AWS resources
+This repository contains some codes about AWS resources.
+You can use the codes freely.
