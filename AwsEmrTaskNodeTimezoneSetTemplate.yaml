@@ -5,12 +5,12 @@ Description: |
   including lambda function, lambda execution role, grant permissions, and Cloudwatch Event rule.
 
 Parameters:
-  EMR_Cluster_ID:
+  EMRClusterID:
     Description: The EMR cluster id, such as j-1K48XXXXXXHCB
     Type: String
   
-  Time_Zone:
-    Description: The time zone to use.
+  TimeZone:
+    Description: Timezone to set.
     Type: String
     AllowedValues:
       - Africa/Abidjan
@@ -662,6 +662,7 @@ Resources:
               instance_id = event['detail']['instance-id']
               instance_ids = [instance_id]
          
+              timezone = os.getenv('TIMEZONE')
               job_flow_id = os.getenv('JOB_FLOW_ID')
               if not job_flow_id:
                   logger.error("Environment variable JOB_FLOW_ID is not set.")
@@ -706,7 +707,7 @@ Resources:
                       time.sleep(10)
          
           def change_timezone(instance_id):
-              command = "sudo timedatectl set-timezone Asia/Singapore"
+              command = f"sudo timedatectl set-timezone {timezone}"
               response = ssm_client.send_command(
                   InstanceIds=[instance_id],
                   DocumentName="AWS-RunShellScript",
@@ -716,7 +717,8 @@ Resources:
 
       Environment:
         Variables:
-          JOB_FLOW_ID: !Ref EMR_Cluster_ID
+          JOB_FLOW_ID: !Ref EMRClusterID
+          TIMEZONE: !Ref TimeZone
       FunctionName: AWSEmrTimeZoneSet-1735869443
       Handler: index.lambda_handler
       Role:
